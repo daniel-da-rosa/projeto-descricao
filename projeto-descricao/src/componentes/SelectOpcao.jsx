@@ -1,49 +1,79 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState } from 'react';
+import Comando from './Comando'; // Importe o componente Comando
+import TextArea from './TextArea';
+import Erro from './Erro';
 
-export default function SelectOpcao({ selecionado, setSelecionado, gerarComando }) {
+export default function SelectOpcao() {
   const opcoes = ['Grupo', 'SubGrupo', 'Classe', 'Familia', 'Descrição', 'Versão'];
-  
-  const handleChange = (index, event) => {
-    const newSelecao = [...selecionado];
-    newSelecao[index] = event.target.value;
-    setSelecionado(newSelecao);
+  const [selecionado, setSelecionado] = useState('');
+  const [sequencia, setSequencia] = useState([]);
+  const [comandoSql, setComandoSQL] = useState('');
+  const [mostrarErro, setMostrarErro] = useState(false); // Adicione o estado para mostrar o erro
+
+  const handleSelectChange = (event) => {
+    setSelecionado(event.target.value);
   };
 
-  const getDisponiveis = (index) => {
-    // eslint-disable-next-line react/prop-types
-    return opcoes.filter((opcao) => !selecionado.includes(opcao) || selecionado[index] === opcao);
+  const adicionarOpcao = () => {
+    if (selecionado && !sequencia.includes(selecionado)) {
+      const novaSequencia = [...sequencia, selecionado];
+      setSequencia(novaSequencia);
+      setSelecionado('');
+    }
+  };
+
+  const getDisponiveis = () => {
+    return opcoes.filter(opcao => !sequencia.includes(opcao));
+  };
+
+  const handleGerarComando = () => {
+    if (sequencia.length === 0) {
+      setMostrarErro(true); // Define o estado para mostrar o erro
+    } else {
+      setMostrarErro(false); // Se houver opções selecionadas, esconde o erro
+      const comandoGerado = Comando(sequencia);
+      setComandoSQL(comandoGerado);
+    }
   };
 
   return (
+    <>
+    {mostrarErro && <Erro></Erro>} {/* Renderiza o componente Erro se mostrarErro for true */}
     <form className="flex flex-col items-center justify-center">
-      <div className="flex flex-wrap justify-center w-1/2 shadow-sm rounded m-5 p-5 bg-gray-300 rounded-b-lg">
-        {selecionado.map((value, index) => (
-          <div key={index} className="w-1/3 align-middle p-2 flex flex-col m-2">
-            <label className="text-gray-700" htmlFor={`opcao${index}`}>Opção {index + 1}:</label>
-            <select
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-              name={`opcao${index}`}
-              id={`opcao${index}`}
-              value={value}
-              onChange={(e) => handleChange(index, e)}
-            >
-              <option value="">Selecione</option>
-              {getDisponiveis(index).map(opcao => (
-                <option key={opcao} value={opcao}>{opcao}</option>
-              ))}
-            </select>
-          </div>
-        ))}
+      <div className="flex items-center justify-center w-1/2 shadow-sm rounded m-5 p-5 bg-gray-300 rounded-b-lg">
+        <select
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-2/3 p-2.5"
+          value={selecionado}
+          onChange={handleSelectChange}
+        >
+          <option value="">Selecione</option>
+          {getDisponiveis().map(opcao => (
+            <option key={opcao} value={opcao}>{opcao}</option>
+          ))}
+        </select>
+        <button 
+          type="button"
+          className="ml-2 bg-teal-800 text-white p-2 rounded hover:bg-teal-700"
+          onClick={adicionarOpcao}
+        >
+          Adicionar
+        </button>
       </div>
+      <input
+        type="text"
+        className="mt-4 p-2 border border-gray-300 rounded-lg bg-gray-100 w-1/2"
+        value={sequencia.join(', ')}
+        readOnly
+      />
       <button 
         type="button"
-        className="w-1/3 bg-teal-700 text-white p-3 rounded-full hover:bg-teal-900"
-        onClick={gerarComando}
+        className="w-1/3 bg-teal-800 text-white p-3 rounded-lg hover:bg-teal-700 mt-4"
+        onClick={handleGerarComando}
       >
         Gerar comando
       </button>
     </form>
+    <TextArea comandoSQL={comandoSql}></TextArea>
+    </>
   );
 }

@@ -1,5 +1,10 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import React from 'react';
+
 export default function Comando(selecionado) {
-  // Supondo que as seleções são nomes de colunas de uma tabela fictícia
+
+
   const selecaoConvertida = selecionado.map((opcao) => {
     switch (opcao) {
       case 'Grupo':
@@ -17,11 +22,12 @@ export default function Comando(selecionado) {
       default:
         return '';
     }
-  })
-  console.log(selecaoConvertida);
-  const colunas = selecaoConvertida.filter(opcao => opcao !== '').join( "||' '||");
+  });
 
-  const comando =`
+
+  const colunas = selecaoConvertida.filter(opcao => opcao !== '').join("||' '||");
+
+  const comando = `
 
   declare
 
@@ -110,18 +116,14 @@ begin
   end if;
   
   v_retorno := ${colunas};
+  dbms_output.put_line(v_retorno);
   
   :p_4 := v_retorno;
 
   
 end;
 
-  `
-
-  // Monta um comando SQL simples
-  // const sql = `SELECT ${colunas} FROM minha_tabela;`;
+  `;
 
   return comando;
 }
-
-
