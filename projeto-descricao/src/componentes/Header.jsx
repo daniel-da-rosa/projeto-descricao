@@ -10,7 +10,7 @@ export default function Header() {
                            text-center
                            text-4xl
                            rounded" 
-                           >Projeto descrição de comando</header>
+                           >Comando para Descrição de Item</header>
     </div>
   )
 }
